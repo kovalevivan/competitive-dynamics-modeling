@@ -16,49 +16,50 @@ using namespace std;
 * Common settings
 */
 const bool VIZUALIZATION_ENABLED = false;
-const bool EXPORT_TO_FILE_ENABLED = true;
+const bool EXPORT_TO_FILE_ENABLED = false;
 const string EXPORT_FILE_PATH = "D:\distribution_per_step.txt";
 
 /*
 * Parameters
 */
 const int NUMBER_OF_CELL_TYPES = 12;
-const int NUMBER_OF_CELLS_FOR_EACH_TYPE = 400;
-const int TOTAL_NUMBER_OF_CELLS = 5000;
+const int NUMBER_OF_CELLS_FOR_EACH_TYPE = 1600;
+const int TOTAL_NUMBER_OF_CELLS = 20000;
 
-const int NUMBER_OF_EXAMPLES_TYPE_ONE = 10000;
-const int NUMBER_OF_EXAMPLES_TYPE_TWO = 10000;
+const int NUMBER_OF_EXAMPLES_TYPE_ONE = 2000;
+const int NUMBER_OF_EXAMPLES_TYPE_TWO = 2000;
 const int TOTAL_NUMBER_OF_TRAINING_EXAMPLES = NUMBER_OF_EXAMPLES_TYPE_ONE + NUMBER_OF_EXAMPLES_TYPE_TWO;
 const double MEAN_TYPE_ONE = 6.0;
 const double STD_DEVIATION = 1.0;
 const double MEAN_TYPE_TWO_FIRST = 3.0;
 const double MEAN_TYPE_TWO_SECOND = 9.0;
 
-const int TOTAL_TIME = 10;
+const int TOTAL_TIME = 1000;
 const double TIME_STEP_VALUE = 0.5;
-const int NUMBER_OF_STEPS = TOTAL_TIME/TIME_STEP_VALUE;
+const int NUMBER_OF_STEPS = TOTAL_TIME / TIME_STEP_VALUE;
 
 const int EMPTY_CELL = 0;
-const int POSSITIVE_RESPONCE = 1;
-const int NO_RESPONCE = 0;
+const int POSSITIVE_RESPONSE = 1;
+const int NO_RESPONSE = 0;
 
 /*
-* Calculate cell responce to training example value
+* Calculate cell response to training example value
 */
-double calculateResponce(double trainingExampleValue, int cellType)
+
+double calculateResponse(double trainingExampleValue, int cellType)
 {
     double delta = 1;
-    double responce = 1 - abs(trainingExampleValue / delta - cellType + 1);
-    if (responce < 0) {
-        responce = 0;
+    double response = 1 - abs(trainingExampleValue / delta - cellType + 1);
+    if (response < 0) {
+        response = 0;
     }
-    return responce;
+    return response;
 }
-
 /*
 * Clear currentDistribution massive and then calculate amount o cells for each type
+*
 */
-void calculateCurrentDistribution(int * cellMassive, int* currentDistribution) {
+void calculateCurrentDistribution(int* cellMassive, int* currentDistribution) {
 
     for (int j = 0; j <= NUMBER_OF_CELL_TYPES; j++) {
         currentDistribution[j] = 0;
@@ -70,7 +71,7 @@ void calculateCurrentDistribution(int * cellMassive, int* currentDistribution) {
 }
 
 int main()
-{
+{    
     //
     // Prepare file if EXPORT_FILE_ENABLED is equeal to true
     //
@@ -78,6 +79,9 @@ int main()
     if (EXPORT_TO_FILE_ENABLED) {
         exportDataFile.open(EXPORT_FILE_PATH);
     }
+
+    // Record start time
+    auto start = std::chrono::high_resolution_clock::now();
 
     cout << "1. CELL MASSIVE INITIALIZATION --->" << endl << endl;
 
@@ -120,14 +124,14 @@ int main()
     }
 
     cout
-        << "   NUMBER_OF_CELL_TYPES:" << NUMBER_OF_CELL_TYPES << endl
-        << "   NUMBER_OF_CELLS_FOR_EACH_TYPE:" << NUMBER_OF_CELLS_FOR_EACH_TYPE << endl
-        << "   TOTAL_NUMBER_OF_CELLS:" << TOTAL_NUMBER_OF_CELLS << endl;
+        << "   NUMBER_OF_CELL_TYPES=" << NUMBER_OF_CELL_TYPES << endl
+        << "   NUMBER_OF_CELLS_FOR_EACH_TYPE=" << NUMBER_OF_CELLS_FOR_EACH_TYPE << endl
+        << "   TOTAL_NUMBER_OF_CELLS=" << TOTAL_NUMBER_OF_CELLS << endl;
 
     cout << endl << "2. TRAINING EXAMPLES INITIALIZATION --->" << endl << endl;
 
     //
-    // Massive of training examples. First value is a responce, second value is a type of example
+    // Massive of training examples. First value is a response, second value is a type of example
     //
     vector<pair<double, int> > trainingExamples;
 
@@ -151,32 +155,32 @@ int main()
     double expBernuli = uniformRealDistribution(randomNumberGenerator);
 
     //
-    // initialize training examples with no responce
+    // initialize training examples with no response
     //
     for (int i = 0; i < NUMBER_OF_EXAMPLES_TYPE_ONE; i++) {
-        trainingExamples.push_back(make_pair(distributionTypeOne(generator), NO_RESPONCE));
+        trainingExamples.push_back(make_pair(distributionTypeOne(generator), NO_RESPONSE));
     }
 
     //
-        // initialize training examples with positive responce
+    // initialize training examples with positive response
     //
     for (int i = 0; i < NUMBER_OF_EXAMPLES_TYPE_TWO; i++) {
         expBernuli = uniformRealDistribution(randomNumberGenerator);
         if (expBernuli > 0.5) {
-            trainingExamples.push_back(make_pair(distributionTypeTwoFirst(generator), POSSITIVE_RESPONCE));
+            trainingExamples.push_back(make_pair(distributionTypeTwoFirst(generator), POSSITIVE_RESPONSE));
         }
         else {
-            trainingExamples.push_back(make_pair(distributionTypeTwoSecond(generator), POSSITIVE_RESPONCE));
+            trainingExamples.push_back(make_pair(distributionTypeTwoSecond(generator), POSSITIVE_RESPONSE));
         }
     }
 
     cout
-        << "   NUMBER_OF_EXAMPLES_TYPE_ONE" << NUMBER_OF_EXAMPLES_TYPE_ONE << endl
-        << "   NUMBER_OF_EXAMPLES_TYPE_TWO" << NUMBER_OF_EXAMPLES_TYPE_TWO << endl
-        << "   MEAN_TYPE_ONE" << MEAN_TYPE_ONE << endl
-        << "   STD_DEVIATION" << STD_DEVIATION << endl
-        << "   MEAN_TYPE_TWO_FIRST" << MEAN_TYPE_TWO_FIRST << endl
-        << "   MEAN_TYPE_TWO_SECOND" << MEAN_TYPE_TWO_SECOND << endl;
+        << "   NUMBER_OF_EXAMPLES_TYPE_ONE=" << NUMBER_OF_EXAMPLES_TYPE_ONE << endl
+        << "   NUMBER_OF_EXAMPLES_TYPE_TWO=" << NUMBER_OF_EXAMPLES_TYPE_TWO << endl
+        << "   MEAN_TYPE_ONE=" << MEAN_TYPE_ONE << endl
+        << "   STD_DEVIATION=" << STD_DEVIATION << endl
+        << "   MEAN_TYPE_TWO_FIRST=" << MEAN_TYPE_TWO_FIRST << endl
+        << "   MEAN_TYPE_TWO_SECOND=" << MEAN_TYPE_TWO_SECOND << endl;
 
     cout << endl << "3. EXPERIMENT --->" << endl << endl;
 
@@ -184,15 +188,14 @@ int main()
     //initialize random number generator
     //
     srand(timeSeed);
-
-    double expResponce = 0;
-    double responce;
+    double expResponse = 0;
+    double response;
     int trainingExampleNumber;
 
     //
     // start the experiment
     //
-    for (int step = 1; step < NUMBER_OF_STEPS; step++) {
+    for (int step = 0; step < NUMBER_OF_STEPS; step++) {
         for (int i = 0; i < TOTAL_NUMBER_OF_CELLS; i++) {
 
             //
@@ -201,23 +204,23 @@ int main()
             if (cellMassive[i] == EMPTY_CELL) {
                 continue;
             }
-            
+            expResponse = 0;
             expBernuli = uniformRealDistribution(randomNumberGenerator);
 
-            if ((TIME_STEP_VALUE/2) > expBernuli) {
+            if ((TIME_STEP_VALUE / 2) > expBernuli) {
                 //
-                // find random training example wich when applying to the i cell 
-                // give us responce higher than random number from 0 to 1
+                // find random training example wich when applying to the i cell
+                // give us response higher than random number from 0 to 1
                 //
                 do {
                     trainingExampleNumber = rand() % TOTAL_NUMBER_OF_TRAINING_EXAMPLES;
-                    responce = calculateResponce(trainingExamples[trainingExampleNumber].first, cellMassive[i]);
+                    response = calculateResponse(trainingExamples[trainingExampleNumber].first, cellMassive[i]);
                     expBernuli = uniformRealDistribution(randomNumberGenerator);
-                } while (expBernuli > responce);
-                expResponce = trainingExamples[trainingExampleNumber].second;
+                } while (expBernuli > response);
+                expResponse = trainingExamples[trainingExampleNumber].second;
             }
 
-            if (expResponce == POSSITIVE_RESPONCE) {
+            if (expResponse == POSSITIVE_RESPONSE) {
                 if (!latestEmptyCellsIndexes.empty()) {
                     int index = latestEmptyCellsIndexes.back();
                     latestEmptyCellsIndexes.pop_back();
@@ -231,39 +234,38 @@ int main()
             int randomNumber = rand() % TOTAL_NUMBER_OF_CELLS;
             if (cellMassive[randomNumber] == EMPTY_CELL) {
                 continue;
-            } else {
-                if (cellMassive[randomNumber] == cellMassive[i]) {
+            } else if (cellMassive[randomNumber] == cellMassive[i]) {
+                expBernuli = uniformRealDistribution(randomNumberGenerator);
+                if (TIME_STEP_VALUE > expBernuli) {
+                    cellMassive[i] = EMPTY_CELL;
+                    latestEmptyCellsIndexes.push_back(i);
+                } else {
+                    expResponse = 0;
                     expBernuli = uniformRealDistribution(randomNumberGenerator);
-                    if (TIME_STEP_VALUE > expBernuli) {
+                    if ((TIME_STEP_VALUE / 2) > expBernuli) {
+                        //
+                        // find random training example wich when applying to the i cell
+                        // give us response higher than random number from 0 to 1
+                        //
+                        do {
+                            trainingExampleNumber = rand() % TOTAL_NUMBER_OF_TRAINING_EXAMPLES;
+                            response = calculateResponse(trainingExamples[trainingExampleNumber].first, cellMassive[i]);
+                            expBernuli = uniformRealDistribution(randomNumberGenerator);
+                        } while (expBernuli > response);
+                        expResponse = trainingExamples[trainingExampleNumber].second;
+                    }
+
+                    if (expResponse == POSSITIVE_RESPONSE) {
                         cellMassive[i] = EMPTY_CELL;
                         latestEmptyCellsIndexes.push_back(i);
                     }
                 }
             }
-
-            expBernuli = uniformRealDistribution(randomNumberGenerator);
-            if ((TIME_STEP_VALUE/2) > expBernuli) {
-                //              //
-                // find random training example wich when applying to the i cell 
-                // give us responce higher than random number from 0 to 1
-                //
-                do {
-                    trainingExampleNumber = rand() % TOTAL_NUMBER_OF_TRAINING_EXAMPLES;
-                    responce = calculateResponce(trainingExamples[trainingExampleNumber].first, cellMassive[i]);
-                    expBernuli = uniformRealDistribution(randomNumberGenerator);
-                } while (expBernuli > responce);
-                expResponce = trainingExamples[trainingExampleNumber].second;
-            }
-
-            if (expResponce == POSSITIVE_RESPONCE) {
-                cellMassive[i] = EMPTY_CELL;
-                latestEmptyCellsIndexes.push_back(i);
-            }
         }
 
         calculateCurrentDistribution(cellMassive, currentDistribution);
 
-        cout << "   step " << step << " -->";
+
         for (int i : currentDistribution) {
             cout << i << ",";
         }
@@ -279,8 +281,13 @@ int main()
         }
     }
 
+    // Record end time
+    auto finish = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = finish - start;
+    std::cout << "Elapsed time: " << elapsed.count() << " s\n";
+
     if (EXPORT_TO_FILE_ENABLED) {
-        cout << endl <<  "4. EXPORT TO FILE ---> " << EXPORT_FILE_PATH << endl;
+        cout << endl << "4. EXPORT TO FILE ---> " << EXPORT_FILE_PATH << endl;
         exportDataFile.close();
     }
 }
